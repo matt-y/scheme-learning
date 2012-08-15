@@ -342,6 +342,125 @@
        (member* a (cdr l)))))))
 
 
+(define leftmost 
+  (lambda (l)
+    (cond 
+     ;;base case: we found an atom 
+     ((atom? (car l))
+      (car l))
+     (else 
+      (leftmost (car l))))))
+
+;(define eqlist
+;  (lambda (l1 l2)
+;    (cond 
+;     ;;checks if one, the other, or both ARRRR empty
+;     ((and (null? l1) (null? l2)) #f)
+;     ((or (null? l1) (null? l2)) #f)
+;     (
+      
+(define numbered? 
+  (lambda (aexp)
+    (cond 
+     ((atom? aexp) (number? aexp))
+     ((eq? (car (cdr aexp)) '+)
+      (and (numbered? (car aexp))
+           (numbered? (car (cdr (cdr aexp)))))
+     ((eq? (car (cdr aexp)) 'x)
+      (and (numbered? (car aexp))
+           (numbered? (car (cdr (cdr aexp)))))
+     ((eq? (car (cdr aexp)) '^)
+      (and (numbered? (car aexp))
+           (numbered? (car (cdr (cdr aexp)))))))))))
+
+(define numbered?'
+  (lambda (aexp)
+    (cond 
+     ((atom? aexp) (number? aexp))
+     (else 
+      (and (numbered? (car aexp))
+           (numbered? 
+            (car (cdr (cdr aexp)))))))))
+
+(define value 
+  (lambda (nexp)
+    (cond 
+     ((atom? nexp) nexp)
+     ((eq? (car (cdr nexp)) '+) 
+      ;;7th commandment. recur on subparts 
+      (+ (value (car nexp))
+         (value (cdr (cdr nexp)))))
+     ((eq? (car (cdr nexp)) 'x)
+      (x (value (car nexp))
+         (value (cdr (cdr nexp)))))
+     (else 
+      (* (value (car nexp))
+         (value (cdr (cdr nexp))))))))
+
+(define value'
+  ;;this is wrong 
+  (lambda (nexp)
+    (cond 
+     ((atom? nexp) nexp) ;; base case 
+     ((eq? (car nexp) '+)
+      (+ (value' (cdr nexp))
+         (value' (cdr (cdr nexp)))))
+     ;;etc
+     (else
+      (* (value' (cdr nexp))
+         (value' (cdr (cdr nexp))))))))
+
+
+;;extract sub expressions from the form:
+;;(+ x y) -> x is first, y is second
+(define 1st-sub-xpr
+  (lambda (exp)
+    (car (cdr exp))))
+(define 2nd-sub-xpr
+  (lambda (exp)
+    (car (cdr (cdr exp)))))
+;;extract the operator of (+ x y)
+(define operator 
+  (lambda (exp)
+    (car (exp))))
+
+;;reqrite of value with the above 
+(define value 
+  (lambda (aexp)
+    (cond 
+     ((atom? aexp) aexp)
+     ((eq? (operator aexp) '+)
+      (+ (value (1st-sub-xpr))
+         (value (2nd-sub-xpr))))
+     ((eq? (operator aexp) 'x)
+      (* (value (1st-sub-xpr))
+         (value (2nd-sub-xpr))))
+     (else 
+      (/ (value (1st-sub-xpr))
+         (value (2nd-sub-xpr)))))))
+
+;;below is a funky number representation
+;;using a list of empty lists 
+(define sero
+  (lambda (n)
+    (null? n)))
+
+;;+ 1 (or in our weird case the empty list)
+(define edd1
+  (lambda (n)
+    (cons '() n)))
+
+(define sub1
+  (lambda (n)
+    (cdr n)))
+
+(define plus'
+  (lambda (n m)
+    (cond 
+     ((sero m) n)
+     (else (edd1 (plus' n (sub1 m)))))))
+     
+
 
 
         
