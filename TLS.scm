@@ -463,7 +463,146 @@
 
 
 
-        
+(define set?
+  (lambda (l)
+    (cond 
+     ((null? l) #t)
+     ((member? (car l) (cdr l))
+      #t)
+     (else 
+      (set? (cdr lat))))))
+
+(define makeset
+  (lambda (lat)
+    (cond 
+     ((null? lat) '()) 
+     ((member? (car lat) (cdr lat))
+      (makeset (cdr lat)))
+     (else 
+      (cons (car l) (makeset (cdr lat)))))))
                      
+
+(define makeset 
+  (lambda (lat)
+    (cond 
+     ((null? lat) '())
+     (else
+      (cons (car lat)
+            (makeset
+             (multirember (car lat)
+                          (cdr lat))))))))
+
+(define subset
+  (lambda (set1 set2)
+    (cond
+     ((null? set1) #t)
+     (else 
+      (cond 
+       ((member? (car set1) set2)
+        (subset (cdr set1) set2))
+       (else #f))))))
+
+(define intersect? 
+  (lambda (set1 set2)
+    (cond
+     ((null? set1) #f)
+     ((member? (car set1) set2)
+      #t)
+     (else 
+      (intersect? (cdr set1) set2)))))
       
-     
+(define intersect
+  (lambda (set1 set2)
+    (cond 
+     ((null? set1) '())
+     ((member? (car set1) set2)
+      (cons (car set1) 
+            (intersect (cdr set1) set2)))
+     (else 
+      (intersect (cdr set1) set2)))))
+
+
+(define union
+  (lambda (set1 set2)
+    (cond 
+     ((null? set1) set2)
+     (else 
+      (cond 
+       ;;union still must not be a multiset
+       ;;if something is equal skip it 
+       ((member? (car set1) set2)
+        (union (cdr set1) (set2)))
+       (else 
+        (cons (car set1) 
+              (union? (cdr set1) set2))))))))
+
+(define intersectl
+  (lambda (setl)
+    (cond 
+     ((null? (cdr  setl)) (car setl))
+     (else 
+      (cons (intersect (car setl)
+                       (intersectl (cdr setl))))))))
+
+
+(define first
+  (lambda (p)
+    (car p)))
+(define second
+  (lambda (p)
+    (car (cdr p))))
+(define third
+  (lambda (p)
+    (car (cdr (cdr p)))))
+(define build 
+  (lambda (s1 s2)
+    (cons s1 (cons s2 '()))))
+(define revpair
+  (lambda (pair)
+    (build (second pair) (first pair))))
+
+
+
+;;lambda the ultimate 
+
+(define rember-f
+  (lambda (fun a l)
+    (cond 
+     ((null? l) '())
+     ((fun a (car l)) (cdr l))
+     (else 
+      (cons (rember-f fun 
+                      a
+                      (cdr l))
+            car l)))))
+
+(define eq?-c
+  ;;returns a function that takes an argument
+  (lambda (a)
+    (lambda (x)
+      (eq? x a))))
+
+
+        
+(define seql
+  (lambda (new old l)
+    (cons new (cons old l))))
+
+(define seqR
+  (lambda (new old l)
+    (cons old (cons new l))))
+
+;;function that returns a function using the seq function for
+;;insertions 
+(define insert-g
+  (lambda (seq)
+    (lambda (new old l)
+      (cond 
+       ((null? l) '())
+       
+       ((eq? old (car l))
+        (seq new old (cdr l)))
+       (else 
+        (cons (car l)
+              ((insert-g seq) new old 
+               (cdr l))))))))
